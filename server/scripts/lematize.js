@@ -4,7 +4,7 @@ var myStem = new MyStem();
 myStem.start(); // Run mystem in separate process
 
 async function lemmatize(text) {
-    console.log(text);
+    //console.log(text);
     let arr = text.split(' '), promise, result = '', counter = 0;
 
     for (const i of arr) {
@@ -16,7 +16,7 @@ async function lemmatize(text) {
         await promise;
         counter++;
     }
-    console.log(arr);
+    //console.log(arr);
     return arr;
 }
 

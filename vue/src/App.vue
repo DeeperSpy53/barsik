@@ -15,8 +15,8 @@
     <span>|</span>
     <button @click="method=1">Файл</button>
   </div>
-  <form @submit.prevent>
-    <div class="wrapper">
+  <form @submit.prevent enctype="multipart/form-data">
+    <div class="wrapper adaptive_w">
       <div class="textinput" v-if="method == 0">
         <h2>Внесите текст в текстовое поле:</h2>
         <textarea v-model="text" id="" cols="30" rows="10"></textarea>
@@ -25,7 +25,7 @@
 
       <div class="fileinput" v-else>
         <h2>Загрузите файл с расширением .txt .pdf</h2>
-        <input type="file" name="" id="">
+        <input type="file" id="file" ref="file" v-on:change="handleFileUpload()" enctype="multipart/form-data"> 
         <button @click="checkClick">check</button>
       </div>
 
@@ -95,22 +95,50 @@
         informative: 0.0,
         method: 0,
         keywords: 2,
+        file: ''
       }
     },
     methods: {
-      checkClick(){
-        if(this.method == 0 && this.text.length == 0){
-          alert("Пустоте значение");
-          return;
+      async checkClick(){
+        if(this.method == 0){
+          if(this.text.length == 0){
+            alert("Пустоте значение");
+            return;
+          }
+
+          axios.post("http://localhost:3000/get", {text: this.text, keywords: this.keywords, type: 0}).then((res) => {
+            this.criteria = res.data;
+          });
+        }
+        else{
+          let formData = new FormData();
+          formData.append('file', this.file);
+
+          try{
+            await axios.post('http://localhost:3000/file', formData).then((resf) => {
+              console.log(resf);
+              axios.post("http://localhost:3000/get", {text: this.text, keywords: this.keywords, type: 1}).then((res) => {
+                this.criteria = res.data;
+              });
+            });
+          }
+          catch(err){
+            console.log(err);
+            alert("Указан неверный тип файла!!!")
+          }
         }
         //this.informativeness();
-        axios.post("http://localhost:3000/get", {text: this.text, keywords: this.keywords}).then((res) => {
-          this.criteria = res.data;
-        });
       },
 
-      listSWClick(){
-        
+      handleFileUpload(){     
+        this.file = this.$refs.file.files[0];
+
+        const types = ["text/plain", "text/csv", "text/html", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+        console.log(this.file.type);
+        if(!types.includes(this.file.type)){
+            alert("Загружать возможно только текстовые файлы!");
+            return;
+        }
       }
     },
   }

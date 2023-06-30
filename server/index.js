@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+const up = require('./upload.js');
+const reader = require('any-text');
 
 const lem = require('./scripts/lematize.js');
 const crt = require('./scripts/criteria.js')
@@ -40,15 +42,34 @@ fs.createReadStream("./lemmas.csv")
     });
 
 app.post('/get', async (req, res) => {
-    let info, abcount, abcriteria, abwords = [], swcount, swcriteria, swwords = [], keywords = [], academicCount, academicWords = [], academicCriteria;
+    let info, abcount, abcriteria, abwords = [], swcount, swcriteria, swwords = [], keywords = [], academicCount, academicWords = [], academicCriteria, text;
+
+    if(req.body.type == 0){
+        text = req.body.text;
+    }else{
+        //text = fs.readFileSync(`./files/${up.getFileName()}`, { encoding: "utf-8" });
+
+        let promise = reader.getText(`./files/${up.getFileName()}`).then(function (data) {
+          text = data;
+        });
+        await promise;
+
+        fs.unlink(`./files/${up.getFileName()}`, (err) => {
+            if(err){
+                console.log(err);
+            }
+           
+            console.log(`file './files/${up.getFileName()}' deleted!`);
+        })
+    }
 
     let lemmText = [];
-    let promise = lem.lemmatize(req.body.text).then((res) => {
+    let promise = lem.lemmatize(text).then((res) => {
         lemmText = res;
     });
     await promise;
 
-    promise = crt.informativeness(req.body.text, lemmText).then((res) => {
+    promise = crt.informativeness(text, lemmText).then((res) => {
         info = res;
     });
     await promise;
@@ -60,7 +81,7 @@ app.post('/get', async (req, res) => {
     });
     await promise;
 
-    promise = crt.waterContent(req.body.text, lemmText, stopWords).then((res) => {
+    promise = crt.waterContent(text, lemmText, stopWords).then((res) => {
         swcount = res.count;
         swcriteria = res.criteria;
         swwords = res.words;
@@ -85,3 +106,7 @@ app.post('/get', async (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
     console.log('Server started');
 });
+
+app.post('/file', up.upload.single('file'), (req, res) => {
+    res.send(req.body.file);
+})

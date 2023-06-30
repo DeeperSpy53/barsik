@@ -25,8 +25,13 @@ async function abstractness(lemmas) {
         }
         counter++;
     }
-    console.log(abstractWords.length/lemmas.length);
+   // console.log(abstractWords.length/lemmas.length);
     return {criteria: abstractWords.length/lemmas.length, count: abstractWords.length, words: abstractWords};
+}
+
+function hasSuffix(text) {
+    const suffixes = ['ние', 'ств', 'аци', 'есть', 'ость', 'изм', 'изн', 'ота', 'ина', 'ика', 'тив'];
+    return suffixes.some((suffix) => text.endsWith(suffix));
 }
 
 async function waterContent(text, lemmas, stopWords) {
@@ -39,7 +44,7 @@ async function waterContent(text, lemmas, stopWords) {
 
         counter++;
     }
-    console.log("stopwords: " + count);
+    //console.log("stopwords: " + count);
     return { count: count, criteria: count/lemmas.length, words: arr };
 }
 
@@ -68,7 +73,7 @@ async function keywords(lemmas, kwcount) {
     }
 
     // Выводим результат
-    console.log(result);
+    //console.log(result);
 
     return result;
 }
@@ -83,12 +88,6 @@ async function academic(lemmas, rawl) {
         count++;
     }
     return {criteria: array.length/lemmas.length, count: array.length, words: array};
-}
-
-/////////
-function hasSuffix(text) {
-    const suffixes = ['ние', 'ств', 'аци', 'есть', 'ость', 'изм', 'изн', 'ота', 'ина', 'ика', 'тив'];
-    return suffixes.some((suffix) => text.endsWith(suffix));
 }
 
 module.exports = { informativeness, abstractness, waterContent, keywords, academic }

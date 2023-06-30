@@ -1,6 +1,7 @@
 body{
     margin: 0;
     padding: 0;
+    border: 0;
 }
 
 header{
@@ -207,4 +208,46 @@ header{
     height: 400px;
     background-color: rgb(233, 233, 233);
     border-radius: 25px;
+}
+
+@media (max-width: 1024px){
+    .textinput{
+        textarea{
+            width: 400px;
+        }
+    }
+}
+
+@media (max-width: 768px){
+    .adaptive_w{
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 426px){
+    h1{
+        font-size: 18px;
+    }
+    h2{
+        font-size: 16px;
+    }
+    .criteria{
+        margin: 0 auto;
+    }
+
+    .methods{
+        button{
+            font-size: 12px;
+        }
+    }
+}
+
+@media (max-width: 320px){
+    .criteria__info, .textinput textarea{
+        width: 320px;
+    }
+
+    .textinput textarea{
+        height: 200px;
+    }
 }
